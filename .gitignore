@@ -1,0 +1,6 @@
+__pycache__/
+.audit-runs/
+.DS_Store
+.ruff_cache/
+sbx.local.json
+reviews/
