@@ -1,6 +1,6 @@
 # Skill Auditor
 
-提供一個 skill repo，固定續用既有的 sbx sandbox 與其 Codex 審查 session，產出繁體中文安全審查報告，存入本目錄的 `reviews/`，並自動更新本頁與 [報告索引](reviews/README.md)。
+提供一個 skill repo，固定續用既有的 sbx sandbox 與其 Codex 審查 session，產出繁體中文安全審查報告，存入本目錄的 `reviews/`，並自動更新本頁與 `reviews/README.md` 索引。
 
 ```text
 repo → 檢查既有 sandbox / session → sandbox 內下載固定版本
@@ -50,7 +50,7 @@ sandbox 名稱、ID、Codex session ID 與 agent 工作目錄屬於本機環境�
 
 `/security-review` 的批次審查定義位於 [prompts/security-review.md](prompts/security-review.md)，會作為受信任的 prompt 傳給既有 Codex agent。這是本流程的路由名稱，不假設 Codex CLI 內建此 slash command。
 
-三份 [既有報告](reviews/README.md) 會複製到每次 sandbox 審查目錄作為格式參考。審查涵蓋指示、腳本、hooks、依賴、權限、網路、秘密資料與安裝流程。預設只做靜態審查，不安裝或執行待審 repo；測試、lint 與動態驗證未執行時，報告需明說。
+三份既有報告（見下方「既有報告」）會複製到每次 sandbox 審查目錄作為格式參考。審查涵蓋指示、腳本、hooks、依賴、權限、網路、秘密資料與安裝流程。預設只做靜態審查，不安裝或執行待審 repo；測試、lint 與動態驗證未執行時，報告需明說。
 
 本機負責驗證 session ID、完成事件、必要章節、日期與 SHA，再寫入新報告及索引；格式檢查不能證明模型審查內容正確。既有報告與手寫 README 內容會保留，自動索引使用 HTML 註解標記。
 
@@ -67,13 +67,13 @@ python3 -m compileall -q scripts tests
 
 ## 既有報告
 
-`reviews/` 內含第三方 skill 的審查報告與本機環境資訊，已列入 `.gitignore`、不納入版本控制；下方與自動索引的連結只在本機有效。審查流程需要 `reviews/` 內有下列三份參考報告，clone 後請自備同名檔案。
+`reviews/` 內含第三方 skill 的審查報告與本機環境資訊，已列入 `.gitignore`、不納入版本控制；下方列出的報告與自動索引的檔案只存在於本機。審查流程需要 `reviews/` 內有下列三份參考報告，clone 後請自備同名檔案。
 
 | 日期 | 專案 | 報告 |
 | --- | --- | --- |
-| 2026-11-05 | CloudAI-X/threejs-skills | [完整安全審查（英文）](reviews/threejs-skills-security-audit.md) |
-| 2026-11-06 | gamedev-skills/awesome-gamedev-agent-skills | [技能庫審查](reviews/gamedev-agent-skills-review.md) |
-| 2026-11-06 | Donchitos/Claude-Code-Game-Studios | [工作室框架審查](reviews/claude-code-game-studios-review.md) |
+| 2026-11-05 | CloudAI-X/threejs-skills | 完整安全審查（英文） |
+| 2026-11-06 | gamedev-skills/awesome-gamedev-agent-skills | 技能庫審查 |
+| 2026-11-06 | Donchitos/Claude-Code-Game-Studios | 工作室框架審查 |
 
 三份既有報告的方法與覆蓋範圍不同，不能直接比較風險等級。
 
@@ -83,7 +83,7 @@ python3 -m compileall -q scripts tests
 
 | 日期 | 專案 | 版本 | 報告 |
 | --- | --- | --- | --- |
-| 2026-11-09 | github.com/Bomx/super-video-maker-skill | `3fec4aa66a1d` | [審查報告](reviews/2026-11-09-super-video-maker-skill-review.md) |
-| 2026-11-09 | github.com/CloudAI-X/threejs-skills | `0e181866f095` | [審查報告](reviews/2026-11-09-threejs-skills-review.md) |
+| 2026-11-09 | github.com/Bomx/super-video-maker-skill | `3fec4aa66a1d` | `reviews/2026-11-09-super-video-maker-skill-review.md` |
+| 2026-11-09 | github.com/CloudAI-X/threejs-skills | `0e181866f095` | `reviews/2026-11-09-threejs-skills-review.md` |
 
 <!-- skill-auditor:reviews:end -->
