@@ -138,8 +138,10 @@ class AuditTests(unittest.TestCase):
         self.assertFalse(
             any(args[0] in ("run", "create", "rm", "stop") for args, _ in self.calls)
         )
-        self.assertIn(f"](reviews/{path.name})", (self.root / "README.md").read_text())
-        self.assertIn("Keep manual content.", (self.root / "README.md").read_text())
+        # 根目錄 README 完全不動；索引只寫入 reviews/README.md。
+        self.assertEqual(
+            (self.root / "README.md").read_text(), "# Usage\n\nKeep manual content.\n"
+        )
         self.assertIn(f"]({path.name})", (self.root / "reviews/README.md").read_text())
         self.assertIn("Keep old links.", (self.root / "reviews/README.md").read_text())
         self.assertEqual(
@@ -153,10 +155,10 @@ class AuditTests(unittest.TestCase):
         # 同日同名時第二份加序號，第一份保持原樣。
         self.assertTrue(second.name.endswith("-skills-2-review.md"))
         self.assertEqual(first.read_text(), report())
-        body = (self.root / "README.md").read_text()
+        body = (self.root / "reviews/README.md").read_text()
         self.assertEqual(body.count(auditor.START), 1)
-        self.assertEqual(body.count(f"](reviews/{first.name})"), 1)
-        self.assertEqual(body.count(f"](reviews/{second.name})"), 1)
+        self.assertEqual(body.count(f"]({first.name})"), 1)
+        self.assertEqual(body.count(f"]({second.name})"), 1)
 
     def test_missing_or_recreated_sandbox_fails_without_create(self):
         for sandboxes in (
@@ -218,7 +220,7 @@ class AuditTests(unittest.TestCase):
             with self.assertRaises(RuntimeError):
                 auditor.audit("example/skills", self.root)
         self.assertEqual(len(list((self.root / "reviews").glob("*.md"))), 4)
-        self.assertNotIn(auditor.START, (self.root / "README.md").read_text())
+        self.assertNotIn(auditor.START, (self.root / "reviews/README.md").read_text())
         self.assertTrue(list((self.root / ".audit-runs").glob("*/report.md")))
 
     def test_report_metadata_must_match(self):
@@ -238,7 +240,7 @@ class AuditTests(unittest.TestCase):
                 auditor.validate_report(body, URL, "2026-11-09", SHA)
 
     def test_broken_index_stops_before_clone(self):
-        (self.root / "README.md").write_text(auditor.START)
+        (self.root / "reviews/README.md").write_text(auditor.START)
         with (
             patch.object(auditor, "sbx", side_effect=self.fake_sbx),
             redirect_stdout(io.StringIO()),

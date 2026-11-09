@@ -183,9 +183,7 @@ def validate_report(body, url, day, sha):
         "## 採用建議",
     )
     if not body.startswith("# ") or any(s not in body.splitlines() for s in required):
-        raise RuntimeError(
-            "報告缺少必要欄位或日期／版本不符；保留執行紀錄，不更新 README"
-        )
+        raise RuntimeError("報告缺少必要欄位或日期／版本不符；保留執行紀錄，不更新索引")
 
 
 def index_text(original, rows):
@@ -201,29 +199,27 @@ def index_text(original, rows):
     return original.rstrip() + "\n\n" + block + "\n"
 
 
-def update_indexes(root, filename, url, day, sha):
-    for path, prefix in (
-        (root / "README.md", "reviews/"),
-        (root / "reviews/README.md", ""),
-    ):
-        original = (
-            path.read_text(encoding="utf-8") if path.exists() else "# Skill Auditor\n"
-        )
-        row = f"| {day} | {url.removeprefix('https://')} | `{sha[:12]}` | [審查報告]({prefix}{filename}) |"
-        old_rows = []
-        if START in original and END in original:
-            old_rows = [
-                line
-                for line in original.split(START, 1)[1].split(END, 1)[0].splitlines()
-                if line.startswith("| ") and "](" in line
-            ]
-        content = index_text(original, [row, *old_rows])
-        # 以同一目錄的暫存檔替換，避免中斷時留下半份索引。
-        with tempfile.NamedTemporaryFile(
-            "w", encoding="utf-8", dir=path.parent, delete=False
-        ) as f:
-            f.write(content)
-        Path(f.name).replace(path)
+def update_index(root, filename, url, day, sha):
+    # 只更新 reviews/README.md；根目錄 README 不含 reviews/ 的連結，避免公開 repo 出現失效連結。
+    path = root / "reviews/README.md"
+    original = (
+        path.read_text(encoding="utf-8") if path.exists() else "# Skill Auditor\n"
+    )
+    row = f"| {day} | {url.removeprefix('https://')} | `{sha[:12]}` | [審查報告]({filename}) |"
+    old_rows = []
+    if START in original and END in original:
+        old_rows = [
+            line
+            for line in original.split(START, 1)[1].split(END, 1)[0].splitlines()
+            if line.startswith("| ") and "](" in line
+        ]
+    content = index_text(original, [row, *old_rows])
+    # 以同一目錄的暫存檔替換，避免中斷時留下半份索引。
+    with tempfile.NamedTemporaryFile(
+        "w", encoding="utf-8", dir=path.parent, delete=False
+    ) as f:
+        f.write(content)
+    Path(f.name).replace(path)
 
 
 def audit(value, root=ROOT):
@@ -239,8 +235,8 @@ def audit(value, root=ROOT):
             if not (root / "reviews" / name).is_file():
                 raise RuntimeError(f"缺少參考報告：{name}")
         # 先檢查索引格式，再進行有成本的模型審查。
-        for path in (root / "README.md", root / "reviews/README.md"):
-            index_text(path.read_text(encoding="utf-8") if path.exists() else "", [])
+        index = root / "reviews/README.md"
+        index_text(index.read_text(encoding="utf-8") if index.exists() else "", [])
         print(f"使用 {SANDBOX} / session {SESSION}\n下載 {url}", flush=True)
         prepared = json.loads(
             sbx("exec", "-i", SANDBOX, "python3", "-", remote, url, input=PREPARE)
@@ -300,7 +296,7 @@ def audit(value, root=ROOT):
         name = urlsplit(url).path.rsplit("/", 1)[-1].lower()
         # 檔名為「日期-skill名稱-review.md」；同日同名已存在時加 -2、-3…，絕不覆蓋既有報告。
         # "x" 模式讓「檢查存在」與「建立」成為單一原子操作。
-        # README 只索引已通過格式與 session 檢查的結果。
+        # 索引只登錄已通過格式與 session 檢查的結果。
         for n in count(1):
             filename = f"{day}-{name}{f'-{n}' if n > 1 else ''}-review.md"
             report = root / "reviews" / filename
@@ -311,10 +307,8 @@ def audit(value, root=ROOT):
             break
         with f:
             f.write(body)
-        update_indexes(root, filename, url, day, sha)
-        print(
-            f"報告：{report}\n已更新 README.md 與 reviews/README.md\n執行紀錄：{local}"
-        )
+        update_index(root, filename, url, day, sha)
+        print(f"報告：{report}\n已更新 reviews/README.md\n執行紀錄：{local}")
         return report
 
 

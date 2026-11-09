@@ -1,11 +1,11 @@
 # Skill Auditor
 
-提供一個 skill repo，固定續用既有的 sbx sandbox 與其 Codex 審查 session，產出繁體中文安全審查報告，存入本目錄的 `reviews/`，並自動更新本頁與 `reviews/README.md` 索引。
+提供一個 skill repo，固定續用既有的 sbx sandbox 與其 Codex 審查 session，產出繁體中文安全審查報告，存入本目錄的 `reviews/`，並自動更新 `reviews/README.md` 索引（本頁不含報告索引）。
 
 ```text
 repo → 檢查既有 sandbox / session → sandbox 內下載固定版本
      → Codex resume：/security-review → 驗證完成事件與報告欄位
-     → reviews/日期-skill名稱-review.md → 更新 README
+     → reviews/日期-skill名稱-review.md → 更新 reviews/README.md 索引
 ```
 
 ## 使用方式
@@ -52,7 +52,7 @@ sandbox 名稱、ID、Codex session ID 與 agent 工作目錄屬於本機環境�
 
 三份既有報告（見下方「既有報告」）會複製到每次 sandbox 審查目錄作為格式參考。審查涵蓋指示、腳本、hooks、依賴、權限、網路、秘密資料與安裝流程。預設只做靜態審查，不安裝或執行待審 repo；測試、lint 與動態驗證未執行時，報告需明說。
 
-本機負責驗證 session ID、完成事件、必要章節、日期與 SHA，再寫入新報告及索引；格式檢查不能證明模型審查內容正確。既有報告與手寫 README 內容會保留，自動索引使用 HTML 註解標記。
+本機負責驗證 session ID、完成事件、必要章節、日期與 SHA，再寫入新報告及索引；格式檢查不能證明模型審查內容正確。既有報告與 `reviews/README.md` 的手寫內容會保留，自動索引使用 HTML 註解標記；本頁不會被改寫。
 
 每次執行的 prompt、事件與取得的報告保留在 `.audit-runs/<run-id>/`；sandbox 原始碼與報告保留在 `<workspace>/.skill-auditor/<run-id>/`。失敗不會登錄索引，也不會自動重新呼叫模型；修正原因後再執行。這些目錄不自動清除，長期使用需自行整理。
 
@@ -67,7 +67,7 @@ python3 -m compileall -q scripts tests
 
 ## 既有報告
 
-`reviews/` 內含第三方 skill 的審查報告與本機環境資訊，已列入 `.gitignore`、不納入版本控制；下方列出的報告與自動索引的檔案只存在於本機。審查流程需要 `reviews/` 內有下列三份參考報告，clone 後請自備同名檔案。
+`reviews/` 內含第三方 skill 的審查報告與本機環境資訊，已列入 `.gitignore`、不納入版本控制；下方列出的報告只存在於本機。審查流程需要 `reviews/` 內有下列三份參考報告，clone 後請自備同名檔案。
 
 | 日期 | 專案 | 報告 |
 | --- | --- | --- |
@@ -76,14 +76,3 @@ python3 -m compileall -q scripts tests
 | 2026-11-06 | Donchitos/Claude-Code-Game-Studios | 工作室框架審查 |
 
 三份既有報告的方法與覆蓋範圍不同，不能直接比較風險等級。
-
-## 自動產出的報告
-
-<!-- skill-auditor:reviews:start -->
-
-| 日期 | 專案 | 版本 | 報告 |
-| --- | --- | --- | --- |
-| 2026-11-09 | github.com/Bomx/super-video-maker-skill | `3fec4aa66a1d` | `reviews/2026-11-09-super-video-maker-skill-review.md` |
-| 2026-11-09 | github.com/CloudAI-X/threejs-skills | `0e181866f095` | `reviews/2026-11-09-threejs-skills-review.md` |
-
-<!-- skill-auditor:reviews:end -->
